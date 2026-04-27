@@ -1,0 +1,281 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////
+// ENUMS
+//////////////////////
+
+enum Role {
+  USER
+  SUPER_ADMIN
+}
+
+enum SchoolType {
+  PUBLIC
+  PRIVATE
+  TRUST
+  INTERNATIONAL
+}
+
+enum BoardType {
+  CBSE
+  ICSE
+  STATE
+  IB
+  CAMBRIDGE
+  OTHER
+}
+
+enum SchoolLevel {
+  PRIMARY
+  SECONDARY
+  SR_SECONDARY
+}
+
+enum Medium {
+  ENGLISH
+  HINDI
+  BOTH
+  OTHER
+}
+
+enum RoleType {
+  OWNER
+  PRINCIPAL
+  DIRECTOR
+  ADMIN
+}
+
+enum SubscriptionPlan {
+  FREE
+  PREMIUM
+  ENTERPRISE
+}
+
+enum SchoolStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+//////////////////////
+// SUPER ADMIN USER
+//////////////////////
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+}
+
+//////////////////////
+// TENANT (SAAS LAYER)
+//////////////////////
+
+model Tenant {
+  id          String   @id @default(uuid())
+  schoolName  String
+  subdomain   String   @unique
+  plan        SubscriptionPlan @default(FREE)
+  status      SchoolStatus     @default(ACTIVE)
+  createdAt   DateTime @default(now())
+
+  school      School?
+}
+
+//////////////////////
+// SCHOOL (ERP CORE)
+//////////////////////
+
+model School {
+  id        String   @id @default(uuid())
+  tenantId  String   @unique
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  // Basic Info
+  name              String
+  code              String   @unique
+  logo              String?
+
+  type              SchoolType
+  board             BoardType
+  affiliationNumber String?
+  udiseCode         String?  @unique
+
+  establishmentYear Int?
+  medium            Medium
+  level             SchoolLevel
+
+  website           String?
+  email             String
+  phone             String
+
+  // Relations
+  address           Address?
+  admin             Admin?
+  academic          AcademicInfo?
+  documents         Document[]
+  bankDetail        BankDetail?
+
+  // Controls
+  subscriptionPlan  SubscriptionPlan @default(FREE)
+  maxStudents       Int?
+  maxTeachers       Int?
+  status            SchoolStatus @default(PENDING)
+
+  onboardingStep    Int @default(1) // 👈 IMPORTANT
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+//////////////////////
+// ADDRESS
+//////////////////////
+
+model Address {
+  id        String @id @default(uuid())
+  schoolId  String @unique
+  school    School @relation(fields: [schoolId], references: [id])
+
+  line1     String
+  line2     String?
+  city      String
+  district  String?
+  state     String
+  pincode   String
+  country   String @default("India")
+  landmark  String?
+
+  latitude  Float?
+  longitude Float?
+
+  transportAvailable Boolean @default(false)
+  hostelAvailable    Boolean @default(false)
+}
+
+//////////////////////
+// ADMIN (SCHOOL OWNER)
+//////////////////////
+
+model Admin {
+  id        String   @id @default(uuid())
+  schoolId  String   @unique
+  school    School   @relation(fields: [schoolId], references: [id])
+
+  name      String
+  role      RoleType
+  phone     String
+  email     String
+  username  String
+  password  String
+
+  altPhone  String?
+  profile   String?
+  idProof   String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([schoolId, email])
+  @@unique([schoolId, username])
+}
+
+//////////////////////
+// ACADEMIC INFO
+//////////////////////
+
+model AcademicInfo {
+  id              String   @id @default(uuid())
+  schoolId        String   @unique
+  school          School   @relation(fields: [schoolId], references: [id])
+
+  academicYear    String
+  sessionStart    DateTime
+  sessionEnd      DateTime
+
+  gradingSystem   String
+  examPattern     String?
+  passingMarks    Float?
+
+  classes         Class[]
+  streams         Stream[]
+}
+
+//////////////////////
+// CLASS
+//////////////////////
+
+model Class {
+  id            String   @id @default(uuid())
+  academicId    String
+  academic      AcademicInfo @relation(fields: [academicId], references: [id])
+
+  name          String
+  sectionsCount Int      @default(1)
+
+  sections      Section[]
+}
+
+//////////////////////
+// SECTION
+//////////////////////
+
+model Section {
+  id       String @id @default(uuid())
+  classId  String
+  class    Class  @relation(fields: [classId], references: [id])
+
+  name     String
+}
+
+//////////////////////
+// STREAM
+//////////////////////
+
+model Stream {
+  id          String @id @default(uuid())
+  academicId  String
+  academic    AcademicInfo @relation(fields: [academicId], references: [id])
+
+  name        String
+}
+
+//////////////////////
+// DOCUMENTS
+//////////////////////
+
+model Document {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+
+  type      String
+  fileUrl   String
+
+  createdAt DateTime @default(now())
+}
+
+//////////////////////
+// BANK DETAILS
+//////////////////////
+
+model BankDetail {
+  id            String @id @default(uuid())
+  schoolId      String @unique
+  school        School @relation(fields: [schoolId], references: [id])
+
+  accountName   String
+  accountNumber String
+  ifscCode      String
+  bankName      String
+
+  cancelledCheque String?
+}
