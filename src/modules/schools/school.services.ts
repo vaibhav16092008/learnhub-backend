@@ -112,4 +112,54 @@ export const schoolService = {
 
     return true;
   },
+  async getSchools({
+    page = 1,
+    limit = 10,
+    search,
+  }: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
+    const [schools, total] = await Promise.all([
+      prisma.school.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        where: {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      prisma.school.count({
+        where: {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      }),
+    ]);
+    return {
+      data: schools,
+      pagination: {
+        total: total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  },
+  async getSchoolById(schooldId: string) {
+    console.log("schooldId", schooldId);
+    return prisma.school.findUnique({
+      where: {
+        id: schooldId,
+      },
+    });
+  },
 };

@@ -55,3 +55,30 @@ export const step5 = async (req: Request, res: Response) => {
     return fail(res, e.message);
   }
 };
+
+export const getSchools = async (req: Request, res: Response) => {
+  const { page, limit, search } = req.query;
+
+  try {
+    const data = await schoolService.getSchools({
+      page: parseInt(page as string) || 1,
+      limit: parseInt(limit as string) || 10,
+      search: search as string,
+    });
+    return success(res, data, "All Schools Fetched Successfully!!");
+  } catch (error: any) {
+    return fail(res, error.message);
+  }
+};
+
+export const getSchoolById = async (req: Request, res: Response) => {
+  try {
+    const data = await schoolService.getSchoolById(
+      req?.params?.schoolId as string,
+    );
+    return success(res, data, "All Schools Fetched Successfully!!");
+  } catch (error: any) {
+    console.log("error", error);
+    return fail(res, error.message);
+  }
+};
