@@ -10,4 +10,3 @@ stuMngRouter.post("/", authMiddleware, tenantMiddleware, createStudent);
 stuMngRouter.get("/", authMiddleware, tenantMiddleware, getStudents);
 
 export default stuMngRouter;
-R F q  e r  1`s`
