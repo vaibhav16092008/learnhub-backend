@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { schoolService } from "./school.services";
-import { fail, success } from "../../utils/response.util";
+import { fail, success } from "../../core/utils/response.util";
 
 export const step1 = async (req: Request, res: Response) => {
   try {
@@ -78,7 +78,6 @@ export const getSchoolById = async (req: Request, res: Response) => {
     );
     return success(res, data, "All Schools Fetched Successfully!!");
   } catch (error: any) {
-    console.log("error", error);
     return fail(res, error.message);
   }
 };

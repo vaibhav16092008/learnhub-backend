@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { getProfile, login } from "./auth.services";
-import { errorMessage, successMessage } from "../../utils/static.util";
+import { errorMessage, successMessage } from "../../core/utils/static.util";
 
 const loginController = async (
   req: Request,

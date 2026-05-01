@@ -19,8 +19,6 @@ async function main() {
       role: "SUPER_ADMIN",
     },
   });
-
-  console.log({ alice });
 }
 main()
   .then(async () => {

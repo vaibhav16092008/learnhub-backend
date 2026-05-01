@@ -15,7 +15,7 @@ export const authMiddleware = (
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return errorMessage({
-        message: "Authorization header missing or malformed",
+        message: "Authorization Failed!!",
         statusCode: 401,
         res,
       });
@@ -24,8 +24,6 @@ export const authMiddleware = (
     const token = authHeader.split(" ")[1];
 
     const decoded = verifyToken(token);
-
-    console.log("decoded", decoded);
 
     req.user = decoded;
 

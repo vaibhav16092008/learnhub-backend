@@ -1,4 +1,4 @@
-import { generateToken, prisma } from "../../utils/static.util";
+import { generateToken, prisma } from "../../core/utils/static.util";
 
 export const login = async ({
   email,

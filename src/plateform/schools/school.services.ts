@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { prisma } from "../../utils/static.util";
+import { prisma } from "../../core/utils/static.util";
 
 export const schoolService = {
   async step1(data: any) {
@@ -50,15 +50,20 @@ export const schoolService = {
   async step3(schoolId: string, data: any) {
     const hashed = await bcrypt.hash(data.password, 10);
 
-    return prisma.admin.create({
+    const school = await prisma.school.findUnique({
+      where: { id: schoolId },
+    });
+
+    if (!school) throw new Error("School not found");
+
+    return prisma.tenantUser.create({
       data: {
-        schoolId,
+        tenantId: school.tenantId,
         name: data.name,
-        role: data.role,
-        phone: data.phone,
         email: data.email,
         username: data.username,
         password: hashed,
+        role: "ADMIN",
       },
     });
   },
@@ -131,6 +136,13 @@ export const schoolService = {
             mode: "insensitive",
           },
         },
+        include: {
+          tenant: {
+            select: {
+              subdomain: true,
+            },
+          },
+        },
         orderBy: {
           createdAt: "desc",
         },
@@ -155,7 +167,6 @@ export const schoolService = {
     };
   },
   async getSchoolById(schooldId: string) {
-    console.log("schooldId", schooldId);
     return prisma.school.findUnique({
       where: {
         id: schooldId,

@@ -14,8 +14,8 @@ import {
   step3Schema,
   step4Schema,
   step5Schema,
-} from "../../schema/school.schema";
-import { validate } from "../../middlewares/validate.middleware";
+} from "./school.schema";
+import { validate } from "../../core/middlewares/validate.middleware";
 
 const schoolRouter = Router();
 

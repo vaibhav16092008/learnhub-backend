@@ -81,14 +81,14 @@ model User {
 //////////////////////
 
 model Tenant {
-  id          String   @id @default(uuid())
-  schoolName  String
-  subdomain   String   @unique
-  plan        SubscriptionPlan @default(FREE)
-  status      SchoolStatus     @default(ACTIVE)
-  createdAt   DateTime @default(now())
+  id         String           @id @default(uuid())
+  schoolName String
+  subdomain  String           @unique
+  plan       SubscriptionPlan @default(FREE)
+  status     SchoolStatus     @default(ACTIVE)
+  createdAt  DateTime         @default(now())
 
-  school      School?
+  school School?
 }
 
 //////////////////////
@@ -96,45 +96,45 @@ model Tenant {
 //////////////////////
 
 model School {
-  id        String   @id @default(uuid())
-  tenantId  String   @unique
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  id       String @id @default(uuid())
+  tenantId String @unique
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
 
   // Basic Info
-  name              String
-  code              String   @unique
-  logo              String?
+  name String
+  code String  @unique
+  logo String?
 
   type              SchoolType
   board             BoardType
   affiliationNumber String?
-  udiseCode         String?  @unique
+  udiseCode         String?    @unique
 
   establishmentYear Int?
   medium            Medium
   level             SchoolLevel
 
-  website           String?
-  email             String
-  phone             String
+  website String?
+  email   String
+  phone   String
 
   // Relations
-  address           Address?
-  admin             Admin?
-  academic          AcademicInfo?
-  documents         Document[]
-  bankDetail        BankDetail?
+  address    Address?
+  admin      Admin?
+  academic   AcademicInfo?
+  documents  Document[]
+  bankDetail BankDetail?
 
   // Controls
-  subscriptionPlan  SubscriptionPlan @default(FREE)
-  maxStudents       Int?
-  maxTeachers       Int?
-  status            SchoolStatus @default(PENDING)
+  subscriptionPlan SubscriptionPlan @default(FREE)
+  maxStudents      Int?
+  maxTeachers      Int?
+  status           SchoolStatus     @default(PENDING)
 
-  onboardingStep    Int @default(1) // 👈 IMPORTANT
+  onboardingStep Int @default(1) // 👈 IMPORTANT
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 //////////////////////
@@ -142,18 +142,18 @@ model School {
 //////////////////////
 
 model Address {
-  id        String @id @default(uuid())
-  schoolId  String @unique
-  school    School @relation(fields: [schoolId], references: [id])
+  id       String @id @default(uuid())
+  schoolId String @unique
+  school   School @relation(fields: [schoolId], references: [id])
 
-  line1     String
-  line2     String?
-  city      String
-  district  String?
-  state     String
-  pincode   String
-  country   String @default("India")
-  landmark  String?
+  line1    String
+  line2    String?
+  city     String
+  district String?
+  state    String
+  pincode  String
+  country  String  @default("India")
+  landmark String?
 
   latitude  Float?
   longitude Float?
@@ -167,20 +167,20 @@ model Address {
 //////////////////////
 
 model Admin {
-  id        String   @id @default(uuid())
-  schoolId  String   @unique
-  school    School   @relation(fields: [schoolId], references: [id])
+  id       String @id @default(uuid())
+  schoolId String @unique
+  school   School @relation(fields: [schoolId], references: [id])
 
-  name      String
-  role      RoleType
-  phone     String
-  email     String
-  username  String
-  password  String
+  name     String
+  role     RoleType
+  phone    String
+  email    String
+  username String
+  password String
 
-  altPhone  String?
-  profile   String?
-  idProof   String?
+  altPhone String?
+  profile  String?
+  idProof  String?
 
   createdAt DateTime @default(now())
 
@@ -193,20 +193,20 @@ model Admin {
 //////////////////////
 
 model AcademicInfo {
-  id              String   @id @default(uuid())
-  schoolId        String   @unique
-  school          School   @relation(fields: [schoolId], references: [id])
+  id       String @id @default(uuid())
+  schoolId String @unique
+  school   School @relation(fields: [schoolId], references: [id])
 
-  academicYear    String
-  sessionStart    DateTime
-  sessionEnd      DateTime
+  academicYear String
+  sessionStart DateTime
+  sessionEnd   DateTime
 
-  gradingSystem   String
-  examPattern     String?
-  passingMarks    Float?
+  gradingSystem String
+  examPattern   String?
+  passingMarks  Float?
 
-  classes         Class[]
-  streams         Stream[]
+  classes Class[]
+  streams Stream[]
 }
 
 //////////////////////
@@ -214,14 +214,15 @@ model AcademicInfo {
 //////////////////////
 
 model Class {
-  id            String   @id @default(uuid())
-  academicId    String
-  academic      AcademicInfo @relation(fields: [academicId], references: [id])
+  id         String       @id @default(uuid())
+  academicId String
+  academic   AcademicInfo @relation(fields: [academicId], references: [id])
 
   name          String
-  sectionsCount Int      @default(1)
+  sectionsCount Int    @default(1)
 
-  sections      Section[]
+  sections Section[]
+  students Student[]
 }
 
 //////////////////////
@@ -229,11 +230,12 @@ model Class {
 //////////////////////
 
 model Section {
-  id       String @id @default(uuid())
-  classId  String
-  class    Class  @relation(fields: [classId], references: [id])
+  id      String @id @default(uuid())
+  classId String
+  class   Class  @relation(fields: [classId], references: [id])
 
   name     String
+  students Student[]
 }
 
 //////////////////////
@@ -241,11 +243,11 @@ model Section {
 //////////////////////
 
 model Stream {
-  id          String @id @default(uuid())
-  academicId  String
-  academic    AcademicInfo @relation(fields: [academicId], references: [id])
+  id         String       @id @default(uuid())
+  academicId String
+  academic   AcademicInfo @relation(fields: [academicId], references: [id])
 
-  name        String
+  name String
 }
 
 //////////////////////
@@ -253,12 +255,12 @@ model Stream {
 //////////////////////
 
 model Document {
-  id        String   @id @default(uuid())
-  schoolId  String
-  school    School   @relation(fields: [schoolId], references: [id])
+  id       String @id @default(uuid())
+  schoolId String
+  school   School @relation(fields: [schoolId], references: [id])
 
-  type      String
-  fileUrl   String
+  type    String
+  fileUrl String
 
   createdAt DateTime @default(now())
 }
@@ -268,9 +270,9 @@ model Document {
 //////////////////////
 
 model BankDetail {
-  id            String @id @default(uuid())
-  schoolId      String @unique
-  school        School @relation(fields: [schoolId], references: [id])
+  id       String @id @default(uuid())
+  schoolId String @unique
+  school   School @relation(fields: [schoolId], references: [id])
 
   accountName   String
   accountNumber String
@@ -278,4 +280,93 @@ model BankDetail {
   bankName      String
 
   cancelledCheque String?
+}
+
+//-------------------------------------  Tenants -------------------------------------//
+
+enum UserRole {
+  ADMIN
+  TEACHER
+  ACCOUNTANT
+  STUDENT
+  PARENT
+}
+
+model TenantUser {
+  id       String @id @default(uuid())
+  tenantId String
+
+  name     String
+  email    String
+  username String
+  password String
+
+  role     UserRole
+  isActive Boolean  @default(true)
+
+  student   Student?
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, email])
+  @@unique([tenantId, username])
+  @@index([tenantId])
+}
+
+/////////////// //////// //////////////////
+/////////////// AcademicYear //////////////////
+/////////////// //////// //////////////////
+
+model AcademicYear {
+  id       String @id @default(uuid())
+  tenantId String
+
+  name      String // 2025-26
+  startDate DateTime
+  endDate   DateTime
+
+  isActive Boolean @default(true)
+
+  students Student[]
+
+  @@index([tenantId])
+}
+
+/////////////// //////// //////////////////
+/////////////// Student //////////////////
+/////////////// //////// //////////////////
+
+model Student {
+  id       String @id @default(uuid())
+  tenantId String
+
+  userId String     @unique
+  user   TenantUser @relation(fields: [userId], references: [id])
+
+  admissionNumber String
+  rollNumber      String?
+
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  classId String
+  class   Class  @relation(fields: [classId], references: [id])
+
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  dob    DateTime
+  gender String
+
+  fatherName String?
+  motherName String?
+
+  phone   String?
+  address String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, admissionNumber])
+  @@index([tenantId])
 }
